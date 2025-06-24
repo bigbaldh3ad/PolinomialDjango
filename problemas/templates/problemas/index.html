@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora de Aproximación Polinomial</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px 40px;
+            background: #f0f4f8;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #1a3e72;
+            font-weight: 700;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(26, 62, 114, 0.3);
+        }
+        form {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            transition: box-shadow 0.3s ease;
+        }
+        form:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+        }
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            color: #1a3e72;
+        }
+        select, input[type=text], input[type=number] {
+            width: 100%;
+            padding: 10px 14px;
+            margin-bottom: 20px;
+            border: 1.8px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+        select:focus, input[type=text]:focus, input[type=number]:focus {
+            border-color: #1a3e72;
+            outline: none;
+            box-shadow: 0 0 8px rgba(26, 62, 114, 0.3);
+        }
+        button {
+            background-color: #1a3e72;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            width: 100%;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 12px rgba(26, 62, 114, 0.6);
+        }
+        button:hover {
+            background-color: #14406a;
+            box-shadow: 0 8px 18px rgba(20, 64, 106, 0.8);
+        }
+        .resultado, .error {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            line-height: 1.5;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.07);
+        }
+        .resultado {
+            background-color: #d9f0d9;
+            color: #206020;
+            font-family: 'Courier New', Courier, monospace;
+            white-space: pre-wrap;
+            border: 1px solid #a6d8a6;
+        }
+        .error {
+            background-color: #fddede;
+            color: #900000;
+            border: 1px solid #f5a6a6;
+        }
+        .grafica {
+            margin-top: 40px;
+            text-align: center;
+        }
+        .grafica img {
+            max-width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+        }
+        .descripcion {
+            margin-bottom: 25px;
+            font-style: italic;
+            color: #555;
+            font-size: 15px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        @media (max-width: 600px) {
+            body {
+                margin: 20px 10px 30px;
+            }
+            form {
+                padding: 20px 25px;
+            }
+            button {
+                font-size: 16px;
+                padding: 12px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Calculadora de Aproximación Polinomial</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <label for="problema">Seleccionar un problema real:</label>
+        <select name="problema" onchange="this.form.submit()">
+            <option value="">-- Selecciona uno --</option>
+            {% for clave, p in problemas.items %}
+                <option value="{{ clave }}" {% if clave == seleccionado %}selected{% endif %}>
+                    {{ p.titulo }}
+                </option>
+            {% endfor %}
+        </select>
+
+        {% if problema_seleccionado %}
+            <p class="descripcion"><strong>Descripción:</strong> {{ problema_seleccionado.descripcion }}</p>
+        {% endif %}
+
+        <label for="datos_x">Valores X:</label>
+        <input type="text" name="datos_x" value="{{ datos_x }}" required placeholder="Ejemplo: 0,1,2,3,4">
+
+        <label for="datos_y">Valores Y:</label>
+        <input type="text" name="datos_y" value="{{ datos_y }}" required placeholder="Ejemplo: 0,4.9,19.6,44.1,78.4">
+
+        <label for="grado">Grado del polinomio:</label>
+        <input type="number" name="grado" min="1" max="10" value="{{ grado|default:2 }}">
+
+        <button type="submit">Calcular</button>
+    </form>
+
+    {% if resultado %}
+        <div class="resultado">
+            <h2>Resultado del polinomio ajustado:</h2>
+            <pre>{{ resultado }}</pre>
+        </div>
+    {% endif %}
+
+    {% if error %}
+        <div class="error">
+            <h3>Error:</h3>
+            <p>{{ error }}</p>
+        </div>
+    {% endif %}
+
+    {% if imagen_grafica %}
+        <div class="grafica">
+            <img src="data:image/png;base64,{{ imagen_grafica }}" alt="Gráfica de ajuste polinomial">
+        </div>
+    {% endif %}
+</body>
+</html>
